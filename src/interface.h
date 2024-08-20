@@ -4,7 +4,7 @@
 
 /*  Public functions  */
 
-gboolean dialog (gint32 image_ID,
+bool dialog (int32 image_ID,
                  GimpDrawable       *drawable,
                  PlugInVals         *vals,
                  PlugInImageVals    *image_vals,

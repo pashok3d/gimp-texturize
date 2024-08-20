@@ -1,3 +1,3 @@
 #include <glib.h>
 
-gint modulo(gint x, gint m);
+int modulo(int x, int m);

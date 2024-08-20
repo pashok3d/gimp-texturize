@@ -32,8 +32,8 @@ couche alpha (au lieu de traiter l'image tout de même, incorrectement).
 +* La page web du plugin commence à s'étoffer de quelques explications,
 d'exemples et d'une capture d'écran.
 
-+ Le patch et l'image final sont désormais des guchar*
-(et non des guchar***). Le greffon tourne environ 5 fois plus vite.
++ Le patch et l'image final sont désormais des unsigned char*
+(et non des unsigned char***). Le greffon tourne environ 5 fois plus vite.
 J'ai donc enlevé la recommandation d'aller boire un café :-)
 
 + Le poids d'une arrête tient compte du gradient local : le greffon
@@ -57,7 +57,7 @@ dernier pixel rempli au lieu du pourcentages de pixels remplis).
 première passe (remplissage de l'image avant de chercher à cacher les
 mauvaises coutures).
 
-+ rempli est maintenant un guchar** (et non un int**).
++ rempli est maintenant un unsigned char** (et non un int**).
 
 + Nettoyage de offset.c.
 
@@ -292,5 +292,5 @@ en la GPL, un peu plus adaptée à notre projet, il me semble.
 développeurs de GIMP.
 
 
- LocalWords:  guchar débuggage offset.c ie JB fault gimp rgn rect
+ LocalWords:  unsigned char débuggage offset.c ie JB fault gimp rgn rect
  LocalWords:  printf RGB malloc

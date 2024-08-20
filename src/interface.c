@@ -27,7 +27,7 @@ static PlugInUIVals *ui_state = NULL;
 
 /*  Public functions  */
 
-gboolean dialog (gint32              image_ID,
+bool dialog (int32              image_ID,
                  GimpDrawable       *drawable,
                  PlugInVals         *vals,
                  PlugInImageVals    *image_vals,
@@ -39,8 +39,8 @@ gboolean dialog (gint32              image_ID,
   GtkWidget *table;
   GtkWidget *tileable_checkbox;
   GtkObject *adj;
-  gint row;
-  gboolean   run = FALSE;
+  int row;
+  bool   run = FALSE;
 
   image_vals->width_p  = gimp_image_width(image_ID);
   image_vals->height_p = gimp_image_height(image_ID);

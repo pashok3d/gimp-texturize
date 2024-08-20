@@ -1,82 +1,83 @@
-#include "config.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
-#include <glib.h>
-
-#include "main.h"
 #include "texturize.h"
+#include <opencv2/opencv.hpp>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
 
-#include "plugin-intl.h"
+int modulo(int x, int m) {
+  int v = (x - (m * (x / m)));
+  return (v >= 0)? v : v + m;
+}
 
-// Computes the distance between image_tab and patch_tab for the zone that's
-//   been filled in:
+// Computes the distance between image_tab and patch_tab for the zone that's been filled in:
 // (x_min,y_min) -> (x_max,y_max) in image_tab
 // (x_min,y_min)-posn -> (x_max,y_max) - posn in patch_tab
 float difference(int width_i, int height_i, int width_p, int height_p,
-                 unsigned char * image, unsigned char * patch,
-                 int posn_x, int posn_y,
+                 unsigned char *image, unsigned char *patch, int posn_x, int posn_y,
                  int x_min, int y_min, int x_max, int y_max,
-                 int channels, unsigned char ** filled) {
+                 int channels, unsigned char **filled) {
 
-  int    somme = 0, zone=0;
-  int    x_i, y_i, k;
-  unsigned char *image_ptr, *patch_ptr;
+    int somme = 0, zone = 0;
+    int x_i, y_i, k;
+    unsigned char *image_ptr, *patch_ptr;
 
-  int x_p, y_p;
-  int x_i_start, x_p_start;
-  int xcount, ycount;
-  int iy, ix;
-  unsigned char *image_ptr_x, *patch_ptr_x;
-  int image_add_y, patch_add_y;
+    int x_p, y_p;
+    int x_i_start, x_p_start;
+    int xcount, ycount;
+    int iy, ix;
+    unsigned char *image_ptr_x, *patch_ptr_x;
+    int image_add_y, patch_add_y;
 
-  // source image edges is looping
+    // Debugging output
+    std::cout << "difference function called with parameters:" << std::endl;
+    std::cout << "posn_x: " << posn_x << ", posn_y: " << posn_y << std::endl;
+    std::cout << "x_min: " << x_min << ", y_min: " << y_min << std::endl;
+    std::cout << "x_max: " << x_max << ", y_max: " << y_max << std::endl;
 
-  ycount = y_max - y_min;
-  xcount = x_max - x_min;
+    ycount = y_max - y_min;
+    xcount = x_max - x_min;
 
-  y_i = modulo(y_min, height_i);
-  x_i_start = modulo(x_min, width_i);
+    y_i = modulo(y_min, height_i);
+    x_i_start = modulo(x_min, width_i);
 
-  y_p = modulo(y_i - posn_y, height_p);
-  x_p_start = modulo(x_i_start - posn_x, width_p);
+    y_p = modulo(y_i - posn_y, height_p);
+    x_p_start = modulo(x_i_start - posn_x, width_p);
 
-  image_add_y = width_i * channels;
-  patch_add_y = width_p * channels;
-  image_ptr_x = image + y_i * image_add_y;
-  patch_ptr_x = patch + y_p * patch_add_y;
+    image_add_y = width_i * channels;
+    patch_add_y = width_p * channels;
+    image_ptr_x = image + y_i * image_add_y;
+    patch_ptr_x = patch + y_p * patch_add_y;
 
-  for (iy = 0; iy < ycount; iy++) {
+    for (iy = 0; iy < ycount; iy++) {
 
-    x_i = x_i_start;
-    x_p = x_p_start;
-    image_ptr = image_ptr_x + x_i * channels;
-    patch_ptr = patch_ptr_x + x_p * channels;
+        x_i = x_i_start;
+        x_p = x_p_start;
+        image_ptr = image_ptr_x + x_i * channels;
+        patch_ptr = patch_ptr_x + x_p * channels;
 
-    for (ix = 0; ix < xcount; ix++) {
-      if (filled[x_i][y_i]) {
-        for (k = 0 ; k < channels; k++) {
-          somme += abs (*image_ptr - *patch_ptr);
-          image_ptr++;
-          patch_ptr++;
-          zone++;
+        for (ix = 0; ix < xcount; ix++) {
+            if (filled[x_i][y_i]) {
+                for (k = 0; k < channels; k++) {
+                    somme += abs(*image_ptr - *patch_ptr);
+                    image_ptr++;
+                    patch_ptr++;
+                    zone++;
+                }
+            } else {
+                image_ptr += channels;
+                patch_ptr += channels;
+            }
+
+            if (++x_i >= width_i) { x_i = 0; image_ptr = image_ptr_x; }
+            if (++x_p >= width_p) { x_p = 0; patch_ptr = patch_ptr_x; }
         }
-      } else {
-        image_ptr += channels;
-        patch_ptr += channels;
-      }
 
-      if (++x_i >= width_i) { x_i = 0; image_ptr = image_ptr_x; }
-      if (++x_p >= width_p) { x_p = 0; patch_ptr = patch_ptr_x; }
+        image_ptr_x += image_add_y;
+        patch_ptr_x += patch_add_y;
+
+        if (++y_i >= height_i) { y_i = 0; image_ptr_x = image; }
+        if (++y_p >= height_p) { y_p = 0; patch_ptr_x = patch; }
     }
-
-    image_ptr_x += image_add_y;
-    patch_ptr_x += patch_add_y;
-
-    if (++y_i >= height_i) { y_i = 0; image_ptr_x = image; }
-    if (++y_p >= height_p) { y_p = 0; patch_ptr_x = patch; }
-  }
 
     if (zone == 0) {
         std::cerr << "Bug: Zone = 0" << std::endl;
@@ -86,7 +87,7 @@ float difference(int width_i, int height_i, int width_p, int height_p,
         std::cerr << "x_max: " << x_max << ", y_max: " << y_max << std::endl;
         exit(-1);
     }
-  return (((float) somme) / ((float) zone));
+    return (((float) somme) / ((float) zone));
 }
 
 void offset_optimal(int *resultat, unsigned char *image, unsigned char *patch,

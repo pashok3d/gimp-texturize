@@ -21,9 +21,9 @@
 /*  Local function prototypes  */
 static void query (void);
 static void run(const gchar      *name,
-                gint              nparams,
+                int              nparams,
                 const GimpParam  *param,
-                gint             *nreturn_vals,
+                int             *nreturn_vals,
                 GimpParam       **return_vals);
 
 /*  Local variables  */
@@ -102,17 +102,17 @@ static void query(void) {
 }
 
 static void run (const gchar      *name,
-                 gint              n_params,
+                 int              n_params,
                  const GimpParam  *param,
-                 gint             *nreturn_vals,
+                 int             *nreturn_vals,
                  GimpParam       **return_vals) {
   static GimpParam   values[1];
   GimpDrawable      *drawable;
-  gint32             image_ID;
+  int32             image_ID;
   GimpRunMode        run_mode;
   GimpPDBStatusType  status = GIMP_PDB_SUCCESS;
 
-  gint32 new_image_id=0;
+  int32 new_image_id=0;
 
   *nreturn_vals = 1;
   *return_vals  = values;

@@ -12,7 +12,7 @@
 
 /*  Public functions  */
 
-gint32 render(gint32        image_ID,
+int32 render(int32        image_ID,
               GimpDrawable       *drawable,
               PlugInVals         *vals,
               PlugInImageVals    *image_vals,
@@ -22,38 +22,38 @@ gint32 render(gint32        image_ID,
 /////////////////////      Variable declaration     ////////////////////
 /////////////////////                               ////////////////////
 
-  gint32 new_image_id = 0;
-  gint32 new_layer_id = 0;
+  int32 new_image_id = 0;
+  int32 new_layer_id = 0;
   GimpDrawable*     new_drawable;
   GimpImageBaseType image_type = GIMP_RGB;
   GimpImageType     drawable_type = GIMP_RGB_IMAGE;
-  gint32            drawable_id = drawable->drawable_id;
+  int32            drawable_id = drawable->drawable_id;
 
   GimpPixelRgn rgn_in, rgn_out;
-  gint width_i, height_i, width_p, height_p;
-  gint channels; // 3 for RVB, 1 for grayscale
+  int width_i, height_i, width_p, height_p;
+  int channels; // 3 for RVB, 1 for grayscale
 
-  gint k, x_i, y_i; // Many counters
+  int k, x_i, y_i; // Many counters
 
-  guchar* patch; // To store the original image
-  guchar* image; // Buffer to store the current image in a 3d array
+  unsigned char* patch; // To store the original image
+  unsigned char* image; // Buffer to store the current image in a 3d array
 
   // These are for storing the pixels we have discarded along the cuts.
-  guchar* coupe_h_here;  // pixel (x,y) of the patch to which belongs the pixel
+  unsigned char* coupe_h_here;  // pixel (x,y) of the patch to which belongs the pixel
                          // on the left (we will thus not use the first
                          // column of this array).
 
-  guchar* coupe_h_west;  // Pixel to the left of the patch to which belongs the
+  unsigned char* coupe_h_west;  // Pixel to the left of the patch to which belongs the
                          // pixel (x,y) (same for the first column).
 
-  guchar* coupe_v_here;  // pixel (x,y) of the patch to which belongs the pixel
+  unsigned char* coupe_v_here;  // pixel (x,y) of the patch to which belongs the pixel
                          // to the top (we will thus not use the first
                          // line of this array).
 
-  guchar* coupe_v_north; // Pixel to the top of the patch to which belongs the
+  unsigned char* coupe_v_north; // Pixel to the top of the patch to which belongs the
                          // pixel (x,y) (same for the first line).
 
-  guchar** filled; // To keep track of which pixels have been filled.
+  unsigned char** filled; // To keep track of which pixels have been filled.
   // 0 iff the pixel isn't filled
   // 1 if the pixel is filled and wihout any cuts
   // 3 if there is an upwards cut
@@ -147,14 +147,14 @@ gint32 render(gint32        image_ID,
   gimp_pixel_rgn_init(&rgn_in, drawable, 0, 0, width_p, height_p, FALSE, FALSE);
 
   // Allocate some memory for everyone.
-  patch = g_new(guchar,width_p * height_p * channels);
-  image = g_new(guchar,width_i * height_i * channels);
-  filled = init_guchar_tab_2d (width_i, height_i);
+  patch = g_new(unsigned char,width_p * height_p * channels);
+  image = g_new(unsigned char,width_i * height_i * channels);
+  filled = init_unsigned char_tab_2d (width_i, height_i);
 
-  coupe_h_here  = g_new(guchar, width_i * height_i * channels);
-  coupe_h_west  = g_new(guchar, width_i * height_i * channels);
-  coupe_v_here  = g_new(guchar, width_i * height_i * channels);
-  coupe_v_north = g_new(guchar, width_i * height_i * channels);
+  coupe_h_here  = g_new(unsigned char, width_i * height_i * channels);
+  coupe_h_west  = g_new(unsigned char, width_i * height_i * channels);
+  coupe_v_here  = g_new(unsigned char, width_i * height_i * channels);
+  coupe_v_north = g_new(unsigned char, width_i * height_i * channels);
 
   // For security, initialize everything to 0.
   for (k = 0; k < width_i * height_i * channels; k++)
@@ -234,13 +234,13 @@ gint32 render(gint32        image_ID,
 
 /*
   // To see where cuts are.
-  guchar * image_coupes;
-  image_coupes = g_new(guchar, width_i*height_i*channels);
+  unsigned char * image_coupes;
+  image_coupes = g_new(unsigned char, width_i*height_i*channels);
   for (k=0;k<width_i*height_i*channels;k++) image_coupes[k] = 255;
 
   for(x_i=1; x_i<width_i; x_i++){
     for(y_i=1; y_i<height_i; y_i++){
-      guchar r = filled[x_i][y_i];
+      unsigned char r = filled[x_i][y_i];
       if (HAS_CUT_NORTH(r) || HAS_CUT_WEST(r)){
         for (k=0; k<channels; k++)
           image_coupes[(y_i*width_i +x_i)*channels +k] = 0;

@@ -4,24 +4,24 @@
 #include <glib.h>
 
 typedef struct {
-  gint     width_i;
-  gint     height_i;
-  gint     overlap;
-  gboolean make_tileable;
+  int     width_i;
+  int     height_i;
+  int     overlap;
+  bool make_tileable;
 } PlugInVals;
 
 typedef struct {
-  gint32 image_id;
-  gint width_p;
-  gint height_p;
+  int32 image_id;
+  int width_p;
+  int height_p;
 } PlugInImageVals;
 
 typedef struct {
-  gint32    drawable_id;
+  int32    drawable_id;
 } PlugInDrawableVals;
 
 typedef struct {
-  gboolean  chain_active;
+  bool  chain_active;
 } PlugInUIVals;
 
 

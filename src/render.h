@@ -3,7 +3,7 @@
 
 /*  Public functions  */
 
-gint32 render(gint32     image_ID,
+int32 render(int32     image_ID,
               GimpDrawable       *drawable,
               PlugInVals         *vals,
               PlugInImageVals    *image_vals,
