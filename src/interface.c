@@ -10,22 +10,12 @@
 
 #include "plugin-intl.h"
 
-
-/*  Constants  */
-
 #define SCALE_WIDTH        180
 #define SPIN_BUTTON_WIDTH   75
 #define RANDOM_SEED_WIDTH  100
 
-
-/*  Local function prototypes  */
-
-/*  Local variables  */
-
 static PlugInUIVals *ui_state = NULL;
 
-
-/*  Public functions  */
 
 bool dialog (int32              image_ID,
                  GimpDrawable       *drawable,

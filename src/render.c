@@ -18,10 +18,6 @@ int32 render(int32        image_ID,
               PlugInImageVals    *image_vals,
               PlugInDrawableVals *drawable_vals) {
 
-/////////////////////                               ////////////////////
-/////////////////////      Variable declaration     ////////////////////
-/////////////////////                               ////////////////////
-
   int32 new_image_id = 0;
   int32 new_layer_id = 0;
   GimpDrawable*     new_drawable;
@@ -69,10 +65,6 @@ int32 render(int32        image_ID,
   float progress; // Progress bar displayed during computation.
   gimp_progress_init ("Texturizing image...");
 
-///////////////////////                           //////////////////////
-///////////////////////      Image dimensions     //////////////////////
-///////////////////////                           //////////////////////
-
   width_i  = vals->width_i;
   height_i = vals->height_i;
   width_p  = image_vals->width_p;
@@ -115,10 +107,6 @@ int32 render(int32        image_ID,
     return -1;
   }
 
-////////////////////////////                  ///////////////////////////
-////////////////////////////   Recouvrement   ///////////////////////////
-////////////////////////////                  ///////////////////////////
-
   /* WARNING: our conventions here aren't necessarily intuitive. Given the way
      that we detect the next pixel to fill, offsets are always negative values
      (we paste the patch a little above and to the left). However, {x,y}_off_*
@@ -129,10 +117,6 @@ int32 render(int32        image_ID,
   y_off_min = MIN (vals->overlap, height_p - 1);
   x_off_max = CLAMP (20, x_off_min/3, width_p -1); /* We know that x_off_min/5 < width_p -1 */
   y_off_max = CLAMP (20, y_off_min/3, height_p - 1); /* We know that y_off_min/5 < height_p-1 */
-
-//////////////////                                     /////////////////
-//////////////////      New image, initializations     /////////////////
-//////////////////                                     /////////////////
 
   // Create a new image with only one layer.
   new_image_id = gimp_image_new(width_i,height_i,image_type);
@@ -160,10 +144,6 @@ int32 render(int32        image_ID,
   for (k = 0; k < width_i * height_i * channels; k++)
     coupe_h_here[k] = coupe_h_west[k] = coupe_v_here[k] = coupe_v_north[k] = 0;
 
-//////////////////                                    /////////////////
-//////////////////    Cleaning up of the new image    /////////////////
-//////////////////                                    /////////////////
-
   // Retrieve the initial image into the patch.
   gimp_pixel_rgn_get_rect (&rgn_in, patch, 0, 0, width_p, height_p);
 
@@ -177,11 +157,6 @@ int32 render(int32        image_ID,
 
   // Retrieve all of the current image into image.
   gimp_pixel_rgn_get_rect (&rgn_out, image, 0, 0, width_i, height_i);
-
-
-/////////////////////////                      ////////////////////////
-/////////////////////////     The big loop     ////////////////////////
-/////////////////////////                      ////////////////////////
 
 
   // The current position : (0,0)
@@ -225,32 +200,6 @@ int32 render(int32        image_ID,
     progress = (progress > 1.0f)? 1.0f : ((progress < 0.0f)? 0.0f : progress);
     gimp_progress_update(progress);
   }
-
-
-//////////////////////                             /////////////////////
-//////////////////////        Last clean up        /////////////////////
-//////////////////////                             /////////////////////
-
-
-/*
-  // To see where cuts are.
-  unsigned char * image_coupes;
-  image_coupes = g_new(unsigned char, width_i*height_i*channels);
-  for (k=0;k<width_i*height_i*channels;k++) image_coupes[k] = 255;
-
-  for(x_i=1; x_i<width_i; x_i++){
-    for(y_i=1; y_i<height_i; y_i++){
-      unsigned char r = filled[x_i][y_i];
-      if (HAS_CUT_NORTH(r) || HAS_CUT_WEST(r)){
-        for (k=0; k<channels; k++)
-          image_coupes[(y_i*width_i +x_i)*channels +k] = 0;
-      }
-//      if (HAS_CUT_WEST(r))
-//        image_coupes[(y_i*width_i +x_i)*channels +channels-1] = 255;
-    }
-  }
-*/
-
 
   gimp_pixel_rgn_set_rect(&rgn_out, image, 0, 0, width_i, height_i);
 

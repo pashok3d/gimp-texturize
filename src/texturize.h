@@ -13,8 +13,8 @@ void decoupe_graphe(
     int channels,
     unsigned char **filled, // Tells whether the pixel is filled and if there is a cut here.
     unsigned char *image, unsigned char *patch,
-    unsigned char *coupe_h_here, unsigned char *coupe_h_west,   // Pixels lost along an old horizontal cut
-    unsigned char *coupe_v_here, unsigned char *coupe_v_north,  // idem for vertical cuts
+    unsigned char *coupe_h_here, unsigned char *coupe_h_west, // Pixels lost along an old horizontal cut
+    unsigned char *coupe_v_here, unsigned char *coupe_v_north, // idem for vertical cuts
     bool make_tileable, bool invert);
 
 // Allocates the memory (with malloc) and fills with 0.
@@ -22,7 +22,7 @@ unsigned char **init_guchar_tab_2d(int x, int y);
 
 /* Compute the best position to put the patch,
  * between (x_patch_posn_min, y_patch_posn_min)
- * and     (x_patch_posn_max, y_patch_posn_max).
+ * and (x_patch_posn_max, y_patch_posn_max).
  */
 void offset_optimal(
     int *resultat, // The position where the patch will have to be put.

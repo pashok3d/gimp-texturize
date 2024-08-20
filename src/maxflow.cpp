@@ -1,5 +1,4 @@
 /* maxflow.cpp */
-/* Vladimir Kolmogorov (vnk@cs.cornell.edu), 2001. */
 
 #include <stdio.h>
 #include "graph.h"
@@ -12,21 +11,6 @@
 
 #define INFINITE_D 1000000000		/* infinite distance to the terminal */
 
-/***********************************************************************/
-
-/*
-  Functions for processing active list.
-  i->next points to the next node in the list
-  (or to i, if i is the last node in the list).
-  If i->next is NULL iff i is not in the list.
-
-  There are two queues. Active nodes are added
-  to the end of the second queue and read from
-  the front of the first queue. If the first queue
-  is empty, it is replaced by the second queue
-  (and the second queue becomes empty).
-*/
-
 inline void Graph::set_active(node *i) {
   if (!i->next) {
     /* it's not in the list yet */
@@ -37,11 +21,6 @@ inline void Graph::set_active(node *i) {
   }
 }
 
-/*
-  Returns the next active node.
-  If it is connected to the sink, it stays in the list,
-  otherwise it is removed from the list
-*/
 inline Graph::node * Graph::next_active() {
   node *i;
 
@@ -63,8 +42,6 @@ inline Graph::node * Graph::next_active() {
     if (i->parent) return i;
   }
 }
-
-/***********************************************************************/
 
 void Graph::maxflow_init() {
   node *i;
@@ -96,8 +73,6 @@ void Graph::maxflow_init() {
   }
   TIME = 0;
 }
-
-/***********************************************************************/
 
 void Graph::augment(arc *middle_arc) {
   node *i;
@@ -177,8 +152,6 @@ void Graph::augment(arc *middle_arc) {
 
   flow += bottleneck;
 }
-
-/***********************************************************************/
 
 void Graph::process_source_orphan(node *i) {
   node *j;
@@ -319,8 +292,6 @@ void Graph::process_sink_orphan(node *i) {
   }
 }
 
-/***********************************************************************/
-
 Graph::flowtype Graph::maxflow() {
   node *i, *j, *current_node = NULL;
   arc *a;
@@ -414,8 +385,6 @@ Graph::flowtype Graph::maxflow() {
 
   return flow;
 }
-
-/***********************************************************************/
 
 Graph::termtype Graph::what_segment(node_id i) {
   if (((node*)i)->parent && !((node*)i)->is_sink) return SOURCE;

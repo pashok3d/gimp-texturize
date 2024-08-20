@@ -1,15 +1,7 @@
-#include "config.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <glib.h>
-
-extern "C" {
-#include "compter.h"
-#include "main.h"
 #include "texturize.h"
-}
 #include "graph.h"
 
 #define MAX_CAPACITY 16383 // Half of the largest short, (captype is short in graph.h)
@@ -57,17 +49,6 @@ inline void paste_patch_pixel_to_image(int width_i, int height_i, int width_p, i
   int k;
   for (k = 0; k < channels; k++) {
     image[(y_i * width_i + x_i) * channels + k] = patch[(y_p * width_p + x_p) * channels + k];
-    /*
-      Might become useful again if we start taking old cuts into account again.
-      if (y_i < height_i - 1 && y_p < height_p - 1){
-      for(k = 0; k < channels; k++)
-      coupe_v_here[((y_i + 1) * width_i + x_i) * channels + k] = patch[((y_p + 1) * width_p + x_p) * channels + k];
-      }
-      if (x_i < width_i - 1 && x_p < width_p - 1) {
-      for(k = 0; k < channels; k++)
-      coupe_h_here[(y_i * width_i + x_i + 1) * channels + k] = patch[(y_p * width_p + x_p + 1) * channels + k];
-      }
-    */
   }
 }
 
@@ -80,8 +61,6 @@ void decoupe_graphe (int* patch_posn,
                      unsigned char   *coupe_v_here, unsigned char * coupe_v_north,
                      bool  make_tileable, bool invert) {
 
-////////////////////////////////////////////////////////////////////////////////
-// Variable declaration.
   int k, x_p, y_p, x_i, y_i;// nb_sommets, sommet_courant; // Compteurs
   int real_x_i, real_y_i;
   int x_inf, y_inf, x_sup, y_sup;
@@ -92,12 +71,6 @@ void decoupe_graphe (int* patch_posn,
   Graph::captype poids; // Pour calculer le poids d'un arc avant de le déclarer à Graph:add_edge
   Graph::node_id first_node = NULL, node_sommet_courant;
   unsigned char r;
-
-////////////////////////////////////////////////////////////////////////////////
-// Graph creation.
-
-  // Let's define how much space we need to visit, depending on whether we want
-  // a tileable texture.
 
   if (make_tileable) {
     x_inf = patch_posn[0];
@@ -110,43 +83,6 @@ void decoupe_graphe (int* patch_posn,
     x_sup = MIN (width_i,  patch_posn[0] + width_p);
     y_sup = MIN (height_i, patch_posn[1] + height_p);
   }
-
-
-  /* Remarque sur la convention "real" :
-   *
-   *                 ______________________
-   *                 |                    |
-   *                 |                    |
-   *                 |<------- x_i ------>|
-   *                 |                    |
-   *                 |                    |
-   *  <--------------|--------- real_x_i--|--------------->
-   *                 |                    |
-   *                 |                    |
-   *                 ______________________
-   */
-
-  // We count the number of nodes by visiting the intersection between the
-  // patch and the filled in image.
-
-//   nb_sommets = 0;
-
-//   for (real_x_i = x_inf; real_x_i < x_sup; real_x_i++) {
-//     for (real_y_i = y_inf; real_y_i < y_sup; real_y_i++) {
-//       x_i = modulo (real_x_i, width_i);
-//       y_i = modulo (real_y_i, height_i);
-//       r = rempli[x_i][y_i];
-//       if (r) {
-//         nb_sommets++;
-// We'll uncomment this when we start taking previous cuts into account again.
-//         if (HAS_CUT_NORTH(r)) nb_sommets++;
-//         if (HAS_CUT_WEST(r))  nb_sommets++;
-//       }
-//     }
-//   }
-
-  // Start by visiting the whole patch to create nodes and create links in
-  // node_of_pixel.
 
   for (real_x_i = x_inf;
        real_x_i < x_sup;
@@ -166,40 +102,6 @@ void decoupe_graphe (int* patch_posn,
       }
     }
   }
-
-  // Create the edges.
-  /*
-  We link to the source the pixels that are at the same time filled and also
-  on the edges of the patch (and, for a non tileable texture, that are also
-  not on the edge of the image).
-  We link to the sink the pixels that have at least one neighbor that isn't
-  filled yet.
-
-  **********************************************
-
-  Loop summary:
-
-  For each x of the patch (intersection with the image if !make_tileable).
-    For each y of the patch (same note)
-    If I am already filled
-     Create the edges with my North and West neighbord (if they exist in the
-         patch) (later we'll need to take previous cuts into account)
-     If I am on the edge of the patch (i.e. there's no other pixel in the patch
-         to the North OR South OR East OR West)
-     And in the !make_tileable case, if I am also not on the edge of the image
-        (1)
-       Then link me to the source
-     If one of my neighbords (North, South, East, West) exists (in the patch
-         AND in the image) and hasn't been filled yet
-       Then link me to the sink
-    If I haven't been filled yet
-      Don't do anything.
-
-  // The test (1) above might cause the source to not be linked to any pixel.
-  // The following line fixes that problem.
-  If !make_tileable, link the top left pixel of the intersection (the first one
-  that was created) to the source.
-  */
 
   for (real_x_i = x_inf;
        real_x_i < x_sup;
@@ -280,14 +182,7 @@ void decoupe_graphe (int* patch_posn,
     graphe->add_tweights (first_node, MAX_CAPACITY, 0);
   }
 
-
-////////////////////////////////////////////////////////////////////////////////
-// Compute the cut.
-
   graphe->maxflow();
-
-////////////////////////////////////////////////////////////////////////////////
-// Update the image.
 
   for (real_x_i = x_inf; real_x_i < x_sup; real_x_i++) {
     x_p = real_x_i - patch_posn[0];
@@ -299,20 +194,15 @@ void decoupe_graphe (int* patch_posn,
       if (r) {
         if (graphe->what_segment(node_of_pixel[x_p * height_p + y_p]) == Graph::SINK) {
           paste_patch_pixel_to_image (width_i, height_i, width_p, height_p, x_i, y_i, x_p, y_p,
-                                      channels, image, patch); //,
-                                      //coupe_h_here, coupe_v_here);
+                                      channels, image, patch);
 	}
-      } else { // (!rempli[x_i][y_i])
+      } else {
         paste_patch_pixel_to_image (width_i, height_i, width_p, height_p, x_i, y_i, x_p, y_p,
-                                    channels, image, patch); //,
-	//coupe_h_here, coupe_v_here);
+                                    channels, image, patch);
         rempli[x_i][y_i] = REMPLI;
       }
     }
   }
-
-////////////////////////////////////////////////////////////////////////////////
-// Clean up.
 
   delete graphe;
   free (node_of_pixel);

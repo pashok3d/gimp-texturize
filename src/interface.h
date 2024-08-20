@@ -2,8 +2,6 @@
 #define __INTERFACE_H__
 
 
-/*  Public functions  */
-
 bool dialog (int32 image_ID,
                  GimpDrawable       *drawable,
                  PlugInVals         *vals,

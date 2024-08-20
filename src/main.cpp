@@ -1,12 +1,12 @@
 #include <opencv2/opencv.hpp>
 #include "texturize.h"
+#include <iostream>
 
 int main(int argc, char** argv) {
     if (argc != 5) {
         std::cerr << "Usage: " << argv[0] << " <input_image> <output_image> <output_width> <output_height>" << std::endl;
         return -1;
     }
-
     std::string input_image_path = argv[1];
     std::string output_image_path = argv[2];
     int output_width = std::stoi(argv[3]);
@@ -35,8 +35,8 @@ int main(int argc, char** argv) {
     unsigned char* coupe_v_north = new unsigned char[output_width * output_height * channels];
 
     // Initialize the first patch
-    for (int x = 0; x < input_image.cols; ++x) {
-        for (int y = 0; y < input_image.rows; ++y) {
+    for (int x = 0; x < std::min(input_image.cols, output_width); ++x) {
+        for (int y = 0; y < std::min(input_image.rows, output_height); ++y) {
             for (int c = 0; c < channels; ++c) {
                 image[(y * output_width + x) * channels + c] = patch[(y * input_image.cols + x) * channels + c];
             }
@@ -52,12 +52,21 @@ int main(int argc, char** argv) {
             std::cerr << "Error: Could not find the next pixel to fill!" << std::endl;
             return -1;
         }
-
+        std::cout << "cur_posn: [" << cur_posn[0] << ", " << cur_posn[1] << "]" << std::endl;
         offset_optimal(patch_posn, image, patch, input_image.cols, input_image.rows, output_width, output_height,
                        cur_posn[0] - 10, cur_posn[1] - 10, cur_posn[0] + 10, cur_posn[1] + 10, channels, filled, false);
-
+        std::cout << "patch_posn: [" << patch_posn[0] << ", " << patch_posn[1] << "]" << std::endl;
         decoupe_graphe(patch_posn, output_width, output_height, input_image.cols, input_image.rows, channels, filled,
                        image, patch, coupe_h_here, coupe_h_west, coupe_v_here, coupe_v_north, false, false);
+
+        // Update the filled array after placing the patch
+        for (int x = patch_posn[0]; x < patch_posn[0] + input_image.cols; ++x) {
+            for (int y = patch_posn[1]; y < patch_posn[1] + input_image.rows; ++y) {
+                if (x < output_width && y < output_height) {
+                    filled[modulo(x, output_width)][modulo(y, output_height)] = 1;
+                }
+            }
+        }
     }
 
     // Save the output image
@@ -72,6 +81,5 @@ int main(int argc, char** argv) {
         delete[] filled[i];
     }
     delete[] filled;
-
     return 0;
 }

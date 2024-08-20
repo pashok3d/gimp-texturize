@@ -1,9 +1,4 @@
-#include "config.h"
 #include <stdio.h>
-
-#include <glib.h>
-
-#include "main.h"
 #include "texturize.h"
 
 // Counts the number of pixels that are already filled.
